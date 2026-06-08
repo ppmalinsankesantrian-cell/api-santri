@@ -1,4 +1,4 @@
-export default function handler(req, res) {
+module.exports = (req, res) => {
   const uid = req.query.uid;
 
   res.status(200).json({
@@ -7,4 +7,4 @@ export default function handler(req, res) {
     kelas: "12",
     kamar: "Rayon 5"
   });
-}
+};
