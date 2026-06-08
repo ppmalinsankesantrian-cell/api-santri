@@ -1,67 +1,56 @@
-const express = require("express");
-const cors = require("cors");
+module.exports = async (req, res) => {
 
-const app = express();
+  const uid = req.query.uid;
 
-app.use(cors());
-
-const BASE44_APP_ID = "69eabbe48b257f7737097f4e";
-const BASE44_API_KEY = "48e999e43f7d4b11bc3896afa62cd578";
-
-app.get("/api-santri", async (req, res) => {
-
-const uid = req.query.uid;
-
-try {
-
-```
-const response = await fetch(
-  `https://app.base44.com/api/apps/${BASE44_APP_ID}/entities/Student`,
-  {
-    headers: {
-      api_key: BASE44_API_KEY
-    }
+  if (!uid) {
+    return res.status(400).json({
+      status: false,
+      message: "UID kosong"
+    });
   }
-);
 
-const students = await response.json();
+  try {
 
-const santri = students.find(
-  s =>
-    s.rfid_uid &&
-    s.rfid_uid.toUpperCase() === uid.toUpperCase()
-);
+    const response = await fetch(
+      "https://app.base44.com/api/apps/69eabbe48b257f7737097f4e/entities/Student",
+      {
+        headers: {
+          api_key: "48e999e43f7d4b11bc3896afa62cd578"
+        }
+      }
+    );
 
-if (santri) {
+    const students = await response.json();
 
-  res.json({
-    uid: santri.rfid_uid,
-    nama: santri.name,
-    kelas: santri.kelas,
-    kamar: santri.kamar
-  });
+    const santri = students.find(
+      s =>
+        s.rfid_uid &&
+        s.rfid_uid.toUpperCase() === uid.toUpperCase()
+    );
 
-} else {
+    if (santri) {
 
-  res.json({
-    status: false,
-    message: "Santri tidak ditemukan"
-  });
+      return res.status(200).json({
+        uid: santri.rfid_uid,
+        nama: santri.name,
+        kelas: santri.kelas,
+        kamar: santri.kamar
+      });
 
-}
-```
+    }
 
-} catch (err) {
+    return res.status(404).json({
+      status: false,
+      message: "Santri tidak ditemukan"
+    });
 
-```
-res.status(500).json({
-  status: false,
-  error: err.message
-});
-```
+  } catch (err) {
 
-}
+    return res.status(500).json({
+      status: false,
+      error: err.message
+    });
 
-});
+  }
 
-app.listen(process.env.PORT || 3000);
+};
